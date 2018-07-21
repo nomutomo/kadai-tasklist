@@ -29,7 +29,11 @@ class TasksController extends Controller
      */
     public function create()
     {
-        //
+        $task = new Task;
+
+        return view('tasks.create', [
+            'task' => $task,
+        ]);
     }
 
     /**
@@ -40,7 +44,11 @@ class TasksController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $task = new Task;
+        $task->content = $request->content;
+        $task->save();
+        
+        return redirect('/');
     }
 
     /**
@@ -51,7 +59,11 @@ class TasksController extends Controller
      */
     public function show($id)
     {
-        //
+        $task = Task::find($id);
+
+        return view('tasks.show', [
+            'task' => $task,
+        ]);
     }
 
     /**
