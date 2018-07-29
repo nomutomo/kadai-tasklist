@@ -24,6 +24,7 @@
             </tbody>
         </table>
     @endif
+    <p>{!! $tasks->render() !!}</p>
     <p> {!! link_to_route('tasks.create', '新規タスクの登録', null, ['class' => 'btn btn-primary']) !!} </p>
 
 @endsection
