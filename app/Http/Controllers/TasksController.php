@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Task;    // 追加
 
+use Illuminate\Support\Facades\Config;    // 追加
+
 class TasksController extends Controller
 {
     /**
@@ -13,9 +15,12 @@ class TasksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    
+
     public function index()
     {
-        $data = [];
+        
         if (\Auth::check()) {
             $user = \Auth::user();
             $tasks = $user->tasks()->orderBy('created_at', 'asc')->paginate(2);
@@ -55,14 +60,7 @@ class TasksController extends Controller
             'status' => 'required|max:10',
             'content' => 'required|max:191',
         ]);
-/*
-        $task = new Task;
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
         
-*/
-
         $request->user()->tasks()->create([
             'status' => $request->status,
             'content' => $request->content,
@@ -79,11 +77,21 @@ class TasksController extends Controller
      */
     public function show($id)
     {
+        
         $task = Task::find($id);
-
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        
+        if( empty($task) ) {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+            
+        }elseif (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+            
+        }else {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+        }
+        
     }
 
     /**
@@ -94,11 +102,22 @@ class TasksController extends Controller
      */
     public function edit($id)
     {
+        
         $task = Task::find($id);
         
-        return view('tasks.edit', [
-            'task' => $task,
-        ]);
+        if( empty($task) ) {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+            
+        }elseif (\Auth::id() === $task->user_id) {
+            return view('tasks.edit', [
+                'task' => $task,
+            ]);
+            return redirect('/');
+            
+        }else {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+        }
+        
     }
 
     /**
@@ -117,11 +136,21 @@ class TasksController extends Controller
         ]);
 
         $task = Task::find($id);
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
         
-        return redirect('/');
+        if( empty($task) ) {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+            
+        }elseif (\Auth::id() === $task->user_id) {
+            $task = Task::find($id);
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save();
+            return redirect('/');
+            
+        }else {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+        }
+        
     }
 
     /**
@@ -132,9 +161,21 @@ class TasksController extends Controller
      */
     public function destroy($id)
     {
-        $task = Task::find($id);
-        $task->delete();
         
-        return redirect('/');
+        $task = Task::find($id);
+        
+        if( empty($task) ) {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+            
+        }elseif (\Auth::id() === $task->user_id) {
+            $task->delete();
+            return redirect('/');
+        }
+        
+        else {
+            return redirect('/')->with('message', config('const.errmsg_0001'));
+        }
+        
     }
+
 }
